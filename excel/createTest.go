@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -194,8 +195,27 @@ func main() {
 	})
 
 	//先分六班的
+	//需要给六班分一个197+的高分
+	topNo := []int{0, 1, 2, 3}
+	rand.Seed(time.Now().Unix())
+	for {
+		rand.Shuffle(len(topNo), func(i, j int) {
+			topNo[i], topNo[j] = topNo[j], topNo[i]
+		})
+		one := topNo[0]
+		if strings.Compare(students[one].name, "杨津福") == 0 {
+			continue
+		} else {
+			stus[5] = append(stus[5], &students[one])
+			students[one].isDelete = true
+			nums[5]--
+			break
+		}
+	}
+
+	//把后50名随机选人分给六班
 	if nums[5] > 0 {
-		step := int64((len(students))-150) / nums[5]
+		step := int64(len(students)-150) / nums[5]
 		start := int64(150)
 		tail := start + step
 		for tail <= int64(len(students)) {
@@ -221,7 +241,7 @@ func main() {
 			fstu = append(fstu, &students[index])
 		}
 	}
-	rand.Seed(time.Now().Unix())
+
 	ClassNo := []int{0, 1, 2, 3, 4}
 	ClassNo1 := []int{0, 1, 2, 3, 4, 5}
 	flag := false
