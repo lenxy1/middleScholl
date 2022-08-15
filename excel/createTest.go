@@ -10,10 +10,14 @@ import (
 )
 
 type stu struct {
-	name     string
-	score    int64
-	id       int64
-	isDelete bool
+	name          string
+	score         float64
+	score_math    float64
+	score_chinese float64
+	id            int64
+	sex           string
+	school        string
+	isDelete      bool
 }
 
 /*const num1 = 50
@@ -54,8 +58,8 @@ func main() {
 		smap[row[0]] = row[1]
 	}
 
-	//读取输入全量学生信息表格
-	f, err := excelize.OpenFile("student.xlsx")
+	//读取输入全量学生信息表格;两个表
+	f, err := excelize.OpenFile("hsn_student.xlsx")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -66,7 +70,7 @@ func main() {
 		}
 	}()
 	// 获取 Sheet1 上所有单元格
-	rows, err := f.GetRows("Sheet1")
+	rows, err := f.GetRows("五年级学生成绩")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -75,28 +79,92 @@ func main() {
 		if i == 0 {
 			continue
 		}
-
-		sco, err := strconv.ParseInt(row[1], 10, 64)
+		//sco, err := strconv.ParseInt(row[1], 10, 64)
+		sco_math, err := strconv.ParseFloat(row[3], 64)
+		sco_chinese, err := strconv.ParseFloat(row[4], 64)
+		sco := sco_chinese + sco_math
 		if err != nil {
 			return
 		}
 		_, ok := smap[row[0]]
 		if ok {
 			stus[5] = append(stus[5], &stu{
-				name:     row[0],
-				score:    sco,
-				id:       int64(i),
-				isDelete: true,
+				name:          row[0],
+				sex:           row[1],
+				score_math:    sco_math,
+				score_chinese: sco_chinese,
+				score:         sco,
+				school:        "红少年小学",
+				id:            int64(i),
+				isDelete:      true,
 			})
 		} else {
 			students = append(students, stu{
-				name:     row[0],
-				score:    sco,
-				id:       int64(i),
-				isDelete: false,
+				name:          row[0],
+				sex:           row[1],
+				score_math:    sco_math,
+				score_chinese: sco_chinese,
+				score:         sco,
+				school:        "红少年小学",
+				id:            int64(i),
+				isDelete:      false,
 			})
 		}
 	}
+	//--------读第二张新建的表
+	d, err := excelize.OpenFile("xj_student.xlsx")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer func() {
+		if err := d.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+	// 获取 Sheet1 上所有单元格
+	drows, err := d.GetRows("一中")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for i, row := range drows {
+		if i == 0 {
+			continue
+		}
+		//sco, err := strconv.ParseInt(row[1], 10, 64)
+		sco_math, err := strconv.ParseFloat(row[2], 64)
+		sco_chinese, err := strconv.ParseFloat(row[3], 64)
+		sco := sco_chinese + sco_math
+		if err != nil {
+			return
+		}
+		_, ok := smap[row[0]]
+		if ok {
+			stus[5] = append(stus[5], &stu{
+				name:          row[1],
+				sex:           row[6],
+				score_math:    sco_math,
+				score_chinese: sco_chinese,
+				score:         sco,
+				school:        "新建小学",
+				id:            int64(i),
+				isDelete:      true,
+			})
+		} else {
+			students = append(students, stu{
+				name:          row[1],
+				sex:           row[6],
+				score_math:    sco_math,
+				score_chinese: sco_chinese,
+				score:         sco,
+				school:        "新建小学",
+				id:            int64(i),
+				isDelete:      false,
+			})
+		}
+	}
+
 	amount := len(students) + len(smap)
 	//num[i]表示i班的待分配人数
 	nums := []int64{0, 0, 0, 0, 0, 0}
@@ -191,7 +259,7 @@ func main() {
 
 	f2 := excelize.NewFile()
 
-	index1 := f2.NewSheet("class 1")
+	f2.NewSheet("class 1")
 	f2.NewSheet("class 2")
 	f2.NewSheet("class 3")
 	f2.NewSheet("class 4")
@@ -199,12 +267,13 @@ func main() {
 	f2.NewSheet("class 6")
 	f2.DeleteSheet("Sheet1")
 	// 写入标题
-	titleSlice := []interface{}{"姓名", "分数"}
-	_ = f2.SetSheetRow("class 1", "A1", &titleSlice)
+	titleSlice := []interface{}{"姓名", "性别", "小学学校", "数学", "语文", "总分"}
 
+	_ = f2.SetSheetRow("class 1", "A1", &titleSlice)
 	data0 := []interface{}{}
 	for i := 0; i < len(stus[0]); i++ {
-		data0 = append(data0, []interface{}{(stus[0][i].name), (stus[0][i].score)})
+		data0 = append(data0, []interface{}{(stus[0][i].name), (stus[0][i].sex), (stus[0][i].school),
+			(stus[0][i].score_math), (stus[0][i].score_chinese), (stus[0][i].score)})
 	}
 	// 遍历写入数据
 	for key, datum := range data0 {
@@ -218,7 +287,8 @@ func main() {
 	_ = f2.SetSheetRow("class 2", "A1", &titleSlice)
 	data1 := []interface{}{}
 	for i := 0; i < len(stus[1]); i++ {
-		data1 = append(data1, []interface{}{(stus[1][i].name), (stus[1][i].score)})
+		data1 = append(data1, []interface{}{(stus[1][i].name), (stus[1][i].sex), (stus[1][i].school),
+			(stus[1][i].score_math), (stus[1][i].score_chinese), (stus[1][i].score)})
 	}
 	// 遍历写入数据
 	for key, datum := range data1 {
@@ -231,7 +301,8 @@ func main() {
 	_ = f2.SetSheetRow("class 3", "A1", &titleSlice)
 	data2 := []interface{}{}
 	for i := 0; i < len(stus[2]); i++ {
-		data2 = append(data2, []interface{}{(stus[2][i].name), (stus[2][i].score)})
+		data2 = append(data2, []interface{}{(stus[2][i].name), (stus[2][i].sex), (stus[2][i].school),
+			(stus[2][i].score_math), (stus[2][i].score_chinese), (stus[2][i].score)})
 	}
 	// 遍历写入数据
 	for key, datum := range data2 {
@@ -244,7 +315,8 @@ func main() {
 	_ = f2.SetSheetRow("class 4", "A1", &titleSlice)
 	data3 := []interface{}{}
 	for i := 0; i < len(stus[3]); i++ {
-		data3 = append(data3, []interface{}{(stus[3][i].name), (stus[3][i].score)})
+		data3 = append(data3, []interface{}{(stus[3][i].name), (stus[3][i].sex), (stus[3][i].school),
+			(stus[3][i].score_math), (stus[3][i].score_chinese), (stus[3][i].score)})
 	}
 	// 遍历写入数据
 	for key, datum := range data3 {
@@ -257,7 +329,8 @@ func main() {
 	_ = f2.SetSheetRow("class 5", "A1", &titleSlice)
 	data4 := []interface{}{}
 	for i := 0; i < len(stus[4]); i++ {
-		data4 = append(data4, []interface{}{(stus[4][i].name), (stus[4][i].score)})
+		data4 = append(data4, []interface{}{(stus[4][i].name), (stus[4][i].sex), (stus[4][i].school),
+			(stus[4][i].score_math), (stus[4][i].score_chinese), (stus[4][i].score)})
 	}
 	// 遍历写入数据
 	for key, datum := range data4 {
@@ -270,7 +343,8 @@ func main() {
 	_ = f2.SetSheetRow("class 6", "A1", &titleSlice)
 	data5 := []interface{}{}
 	for i := 0; i < len(stus[5]); i++ {
-		data5 = append(data5, []interface{}{(stus[5][i].name), (stus[5][i].score)})
+		data5 = append(data5, []interface{}{(stus[5][i].name), (stus[5][i].sex), (stus[5][i].school),
+			(stus[5][i].score_math), (stus[5][i].score_chinese), (stus[5][i].score)})
 	}
 	// 遍历写入数据
 	for key, datum := range data5 {
@@ -280,9 +354,9 @@ func main() {
 		_ = f2.SetSheetRow("class 6", axis, &tmp)
 	}
 	// 设置工作簿的默认工作表
-	f2.SetActiveSheet(index1)
+	f2.SetActiveSheet(0)
 	// 根据指定路径保存文件
-	if err := f2.SaveAs("list.xlsx"); err != nil {
+	if err := f2.SaveAs("一中2022级新生入学名单(测试版).xlsx"); err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println("执行成功")
