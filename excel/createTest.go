@@ -55,7 +55,7 @@ func main() {
 		if i == 0 {
 			continue
 		}
-		smap[row[0]] = row[1]
+		smap[row[0]] = "_"
 	}
 
 	//读取输入全量学生信息表格;两个表
@@ -94,7 +94,7 @@ func main() {
 				score_math:    sco_math,
 				score_chinese: sco_chinese,
 				score:         sco,
-				school:        "红少年小学",
+				school:        "红少年",
 				id:            int64(i),
 				isDelete:      true,
 			})
@@ -105,7 +105,7 @@ func main() {
 				score_math:    sco_math,
 				score_chinese: sco_chinese,
 				score:         sco,
-				school:        "红少年小学",
+				school:        "红少年",
 				id:            int64(i),
 				isDelete:      false,
 			})
@@ -139,7 +139,10 @@ func main() {
 		if err != nil {
 			return
 		}
-		_, ok := smap[row[0]]
+		if i == 9 {
+			fmt.Println(i)
+		}
+		_, ok := smap[row[1]]
 		if ok {
 			stus[5] = append(stus[5], &stu{
 				name:          row[1],
@@ -147,7 +150,7 @@ func main() {
 				score_math:    sco_math,
 				score_chinese: sco_chinese,
 				score:         sco,
-				school:        "新建小学",
+				school:        "新建",
 				id:            int64(i),
 				isDelete:      true,
 			})
@@ -158,7 +161,7 @@ func main() {
 				score_math:    sco_math,
 				score_chinese: sco_chinese,
 				score:         sco,
-				school:        "新建小学",
+				school:        "新建",
 				id:            int64(i),
 				isDelete:      false,
 			})
@@ -189,11 +192,12 @@ func main() {
 	sort.SliceStable(students, func(i, j int) bool {
 		return students[i].score > students[j].score
 	})
+
 	//先分六班的
 	if nums[5] > 0 {
-		step := int64(len(students)) / nums[5]
-		start := int64(0)
-		tail := step
+		step := int64((len(students))-150) / nums[5]
+		start := int64(150)
+		tail := start + step
 		for tail <= int64(len(students)) {
 			s := students[start:tail]
 			rand.Seed(time.Now().Unix())
@@ -204,11 +208,12 @@ func main() {
 			tail += step
 			nums[5]--
 		}
-		if nums[5] != 0 {
-			fmt.Println("error,nums5 not zero")
-			return
-		}
+		//if nums[5] != 0 {
+		//	fmt.Println("error,nums5 not zero")
+		//	return
+		//}
 	}
+
 	//fstu：其他五班剩余待分配学生
 	fstu := make([]*stu, 0)
 	for index, _ := range students {
@@ -218,28 +223,55 @@ func main() {
 	}
 	rand.Seed(time.Now().Unix())
 	ClassNo := []int{0, 1, 2, 3, 4}
+	ClassNo1 := []int{0, 1, 2, 3, 4, 5}
+	flag := false
 	start := 0
 	step := 5
 	tail := step
 	//先处理可以整除的部分
 	for tail <= len(fstu) {
-		//把0-4下标洗牌
-		rand.Shuffle(len(ClassNo), func(i, j int) {
-			ClassNo[i], ClassNo[j] = ClassNo[j], ClassNo[i]
-		})
-		s := fstu[start:tail]
-		for j := 0; j < 5; j++ {
-			ver := ClassNo[j]
-			/*if nums[ver] > 0 {
+		if flag {
+			rand.Shuffle(len(ClassNo1), func(i, j int) {
+				ClassNo1[i], ClassNo1[j] = ClassNo1[j], ClassNo1[i]
+			})
+			s := fstu[start:tail]
+			for j := 0; j < 6; j++ {
+				ver := ClassNo1[j]
+				/*if nums[ver] > 0 {
+					nums[ver]--
+				} else {
+					fmt.Println("error,num<0")
+					return
+				}*/
+				stus[ver] = append(stus[ver], s[j])
 				nums[ver]--
-			} else {
-				fmt.Println("error,num<0")
-				return
-			}*/
-			stus[ver] = append(stus[ver], s[j])
+			}
+			if nums[5] == 0 {
+				flag = false
+				step = 5
+			}
+			start = tail
+			tail = start + step
+		} else {
+			//把0-4下标洗牌
+			rand.Shuffle(len(ClassNo), func(i, j int) {
+				ClassNo[i], ClassNo[j] = ClassNo[j], ClassNo[i]
+			})
+			s := fstu[start:tail]
+			for j := 0; j < 5; j++ {
+				ver := ClassNo[j]
+				/*if nums[ver] > 0 {
+					nums[ver]--
+				} else {
+					fmt.Println("error,num<0")
+					return
+				}*/
+				stus[ver] = append(stus[ver], s[j])
+			}
+			start = tail
+			tail = start + step
 		}
-		start = tail
-		tail = start + step
+
 	}
 
 	//处理剩余不足5人的学生，如果有的话
@@ -256,6 +288,10 @@ func main() {
 	if len(stus[0])+len(stus[1])+len(stus[2])+len(stus[3])+len(stus[4])+len(stus[5]) != amount {
 		fmt.Println("error,numbers loss")
 	}
+	//对六班学生成绩排序
+	sort.SliceStable(stus[5], func(i, j int) bool {
+		return stus[5][i].score > stus[5][j].score
+	})
 
 	f2 := excelize.NewFile()
 
