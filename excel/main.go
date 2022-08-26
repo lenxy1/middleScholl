@@ -59,7 +59,8 @@ func xlsxs(w fyne.Window) {
 		// 设置标签控件 等于打开的文件地址
 		label1.SetText(readCloser.URI().Path())
 		// 传入 文件地址 返回 二位数组数据
-		str = readers(readCloser.URI().Path())
+		//str = readers(readCloser.URI().Path())
+		str = reader_xj(readCloser.URI().Path())
 	}, w)
 	// 设置 选择文件对话框只支持查看 .xlsx 文件
 	openFile.SetFilter(storage.NewExtensionFileFilter([]string{".xlsx"})) //只展示go文件
@@ -79,7 +80,7 @@ func xlsxs(w fyne.Window) {
 		// 设置标签控件 等于打开的文件地址
 		label11.SetText(readCloser.URI().Path())
 		// 传入 文件地址 返回 二位数组数据
-		str1 = readers(readCloser.URI().Path())
+		str1 = reader_hsn(readCloser.URI().Path())
 	}, w)
 	// 设置 选择文件对话框只支持查看 .xlsx 文件
 	openFile1.SetFilter(storage.NewExtensionFileFilter([]string{".xlsx"})) //只展示go文件
@@ -109,7 +110,7 @@ func xlsxs(w fyne.Window) {
 
 	// 按钮  打开 选择文件对话框
 	button111 := widget.NewButton("start dividing", func() {
-		stus = run()
+		stus = run(str, str1)
 		label111.SetText("dividing success,please save the result")
 	})
 
@@ -124,7 +125,7 @@ func xlsxs(w fyne.Window) {
 		label2.SetText(writeCloser.URI().Path())
 		// 传入 二维数组 和 保存文件地址  写入xlsx
 		//setxlsx(str, writeCloser.URI().Path())
-		saveResult(stus, "一中新生分班名单(带分数)")
+		saveResult(stus, "一中新生分班名单(带分数).xlsx")
 		saveResult1(stus, writeCloser.URI().Path())
 	}, w)
 
@@ -153,6 +154,42 @@ func readers(path string) [][]string {
 		}
 		fmt.Println()
 	}
+	return rows
+}
+func reader_xj(path string) [][]string {
+	//--------读第二张新建的表
+	d, err := excelize.OpenFile("xj_student.xlsx")
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	defer func() {
+		if err := d.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+	// 获取 Sheet1 上所有单元格
+	drows, err := d.GetRows("一中")
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return drows
+}
+func reader_hsn(path string) [][]string {
+	//读取输入全量学生信息表格;两个表
+	f, err := excelize.OpenFile("hsn_student.xlsx")
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+	// 获取 Sheet1 上所有单元格
+	rows, err := f.GetRows("五年级学生成绩")
 	return rows
 }
 

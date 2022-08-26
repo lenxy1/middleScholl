@@ -30,7 +30,7 @@ const classesCount = 6
 
 var req = 2
 
-func run() [][]*stu {
+func run(drows, rows [][]string) [][]*stu {
 	fmt.Printf("触发func倒计数：%d", req)
 
 	//学生信息表
@@ -105,22 +105,22 @@ func run() [][]*stu {
 	}
 	req--
 	//读取输入全量学生信息表格;两个表
-	f, err := excelize.OpenFile("hsn_student.xlsx")
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	defer func() {
-		if err := f.Close(); err != nil {
-			fmt.Println(err)
-		}
-	}()
-	// 获取 Sheet1 上所有单元格
-	rows, err := f.GetRows("五年级学生成绩")
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
+	//f, err := excelize.OpenFile("hsn_student.xlsx")
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return nil
+	//}
+	//defer func() {
+	//	if err := f.Close(); err != nil {
+	//		fmt.Println(err)
+	//	}
+	//}()
+	//// 获取 Sheet1 上所有单元格
+	//rows, err := f.GetRows("五年级学生成绩")
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return nil
+	//}
 	for i, row := range rows {
 		if i == 0 {
 			continue
@@ -190,22 +190,22 @@ func run() [][]*stu {
 		}
 	}
 	//--------读第二张新建的表
-	d, err := excelize.OpenFile("xj_student.xlsx")
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	defer func() {
-		if err := d.Close(); err != nil {
-			fmt.Println(err)
-		}
-	}()
-	// 获取 Sheet1 上所有单元格
-	drows, err := d.GetRows("一中")
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
+	//d, err := excelize.OpenFile("xj_student.xlsx")
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return nil
+	//}
+	//defer func() {
+	//	if err := d.Close(); err != nil {
+	//		fmt.Println(err)
+	//	}
+	//}()
+	//// 获取 Sheet1 上所有单元格
+	//drows, err := d.GetRows("一中")
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return nil
+	//}
 	for i, row := range drows {
 		if i == 0 {
 			continue
