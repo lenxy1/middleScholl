@@ -110,6 +110,7 @@ func xlsxs(w fyne.Window) {
 	// 按钮  打开 选择文件对话框
 	button111 := widget.NewButton("start dividing", func() {
 		stus = run()
+		label111.SetText("dividing success,please save the result")
 	})
 
 	// 控件
@@ -123,7 +124,8 @@ func xlsxs(w fyne.Window) {
 		label2.SetText(writeCloser.URI().Path())
 		// 传入 二维数组 和 保存文件地址  写入xlsx
 		//setxlsx(str, writeCloser.URI().Path())
-		saveResult(stus, writeCloser.URI().Path())
+		saveResult(stus, "一中新生分班名单(带分数)")
+		saveResult1(stus, writeCloser.URI().Path())
 	}, w)
 
 	// 显示 保存文件对话框
@@ -224,7 +226,7 @@ func saveResult(stus [][]*stu, path string) {
 	f2.DeleteSheet("Sheet1")
 	// 写入标题
 	titleSlice := []interface{}{"姓名", "性别", "小学学校", "数学", "语文", "总分"}
-
+	//titleSlice := []interface{}{"姓名", "性别", "小学学校"}
 	_ = f2.SetSheetRow("class 1", "A1", &titleSlice)
 	data0 := []interface{}{}
 	for i := 0; i < len(stus[0]); i++ {
@@ -301,6 +303,105 @@ func saveResult(stus [][]*stu, path string) {
 	for i := 0; i < len(stus[5]); i++ {
 		data5 = append(data5, []interface{}{(stus[5][i].name), (stus[5][i].sex), (stus[5][i].school),
 			(stus[5][i].score_math), (stus[5][i].score_chinese), (stus[5][i].score)})
+	}
+	// 遍历写入数据
+	for key, datum := range data5 {
+		axis := fmt.Sprintf("A%d", key+2)
+		// 利用断言，转换类型
+		tmp, _ := datum.([]interface{})
+		_ = f2.SetSheetRow("class 6", axis, &tmp)
+	}
+	// 设置工作簿的默认工作表
+	f2.SetActiveSheet(0)
+	// 根据指定路径保存文件
+	if err := f2.SaveAs(path); err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("执行成功")
+}
+func saveResult1(stus [][]*stu, path string) {
+	f2 := excelize.NewFile()
+
+	f2.NewSheet("class 1")
+	f2.NewSheet("class 2")
+	f2.NewSheet("class 3")
+	f2.NewSheet("class 4")
+	f2.NewSheet("class 5")
+	f2.NewSheet("class 6")
+	f2.DeleteSheet("Sheet1")
+	// 写入标题
+	titleSlice := []interface{}{"姓名", "性别", "小学学校"}
+	//titleSlice := []interface{}{"姓名", "性别", "小学学校"}
+	_ = f2.SetSheetRow("class 1", "A1", &titleSlice)
+	data0 := []interface{}{}
+	for i := 0; i < len(stus[0]); i++ {
+		data0 = append(data0, []interface{}{(stus[0][i].name), (stus[0][i].sex), (stus[0][i].school)})
+	}
+	// 遍历写入数据
+	for key, datum := range data0 {
+		axis := fmt.Sprintf("A%d", key+2)
+		// 利用断言，转换类型
+		tmp, _ := datum.([]interface{})
+		_ = f2.SetSheetRow("class 1", axis, &tmp)
+	}
+
+	// 写入标题
+	_ = f2.SetSheetRow("class 2", "A1", &titleSlice)
+	data1 := []interface{}{}
+	for i := 0; i < len(stus[1]); i++ {
+		data1 = append(data1, []interface{}{(stus[1][i].name), (stus[1][i].sex), (stus[1][i].school)})
+	}
+	// 遍历写入数据
+	for key, datum := range data1 {
+		axis := fmt.Sprintf("A%d", key+2)
+		// 利用断言，转换类型
+		tmp, _ := datum.([]interface{})
+		_ = f2.SetSheetRow("class 2", axis, &tmp)
+	}
+
+	_ = f2.SetSheetRow("class 3", "A1", &titleSlice)
+	data2 := []interface{}{}
+	for i := 0; i < len(stus[2]); i++ {
+		data2 = append(data2, []interface{}{(stus[2][i].name), (stus[2][i].sex), (stus[2][i].school)})
+	}
+	// 遍历写入数据
+	for key, datum := range data2 {
+		axis := fmt.Sprintf("A%d", key+2)
+		// 利用断言，转换类型
+		tmp, _ := datum.([]interface{})
+		_ = f2.SetSheetRow("class 3", axis, &tmp)
+	}
+
+	_ = f2.SetSheetRow("class 4", "A1", &titleSlice)
+	data3 := []interface{}{}
+	for i := 0; i < len(stus[3]); i++ {
+		data3 = append(data3, []interface{}{(stus[3][i].name), (stus[3][i].sex), (stus[3][i].school)})
+	}
+	// 遍历写入数据
+	for key, datum := range data3 {
+		axis := fmt.Sprintf("A%d", key+2)
+		// 利用断言，转换类型
+		tmp, _ := datum.([]interface{})
+		_ = f2.SetSheetRow("class 4", axis, &tmp)
+	}
+
+	_ = f2.SetSheetRow("class 5", "A1", &titleSlice)
+	data4 := []interface{}{}
+	for i := 0; i < len(stus[4]); i++ {
+		data4 = append(data4, []interface{}{(stus[4][i].name), (stus[4][i].sex), (stus[4][i].school)})
+	}
+	// 遍历写入数据
+	for key, datum := range data4 {
+		axis := fmt.Sprintf("A%d", key+2)
+		// 利用断言，转换类型
+		tmp, _ := datum.([]interface{})
+		_ = f2.SetSheetRow("class 5", axis, &tmp)
+	}
+
+	_ = f2.SetSheetRow("class 6", "A1", &titleSlice)
+	data5 := []interface{}{}
+	for i := 0; i < len(stus[5]); i++ {
+		data5 = append(data5, []interface{}{(stus[5][i].name), (stus[5][i].sex), (stus[5][i].school)})
 	}
 	// 遍历写入数据
 	for key, datum := range data5 {

@@ -28,11 +28,11 @@ const num5 = 50
 const num6 = 50*/
 const classesCount = 6
 
-var req = -1
+var req = 2
 
 func run() [][]*stu {
 	fmt.Printf("触发func倒计数：%d", req)
-	req--
+
 	//学生信息表
 	students := make([]stu, 0, 400)
 	//stui:i班最终学生分配
@@ -103,6 +103,7 @@ func run() [][]*stu {
 		}
 		fmt.Println("execute special")
 	}
+	req--
 	//读取输入全量学生信息表格;两个表
 	f, err := excelize.OpenFile("hsn_student.xlsx")
 	if err != nil {
@@ -133,6 +134,7 @@ func run() [][]*stu {
 		}
 		_, ok := smap[row[0]]
 		if ok {
+			smap[row[0]] = "success"
 			stus[5] = append(stus[5], &stu{
 				name:          row[0],
 				sex:           row[1],
@@ -146,6 +148,7 @@ func run() [][]*stu {
 			nums[5]--
 		} else {
 			if _, ok = smap1[row[0]]; ok {
+				smap1[row[0]] = "success"
 				stus[1] = append(stus[1], &stu{
 					name:          row[0],
 					sex:           row[1],
@@ -159,6 +162,7 @@ func run() [][]*stu {
 				nums[1]--
 			} else {
 				if _, ok = smap2[row[0]]; ok && !(strings.Compare(row[0], "金子涵") == 0) {
+					smap2[row[0]] = "success"
 					stus[2] = append(stus[2], &stu{
 						name:          row[0],
 						sex:           row[1],
@@ -218,6 +222,7 @@ func run() [][]*stu {
 		}
 		_, ok := smap[row[1]]
 		if ok {
+			smap[row[1]] = "success"
 			stus[5] = append(stus[5], &stu{
 				name:          row[1],
 				sex:           row[6],
@@ -230,6 +235,7 @@ func run() [][]*stu {
 			})
 			nums[5]--
 		} else if _, ok = smap1[row[1]]; ok {
+			smap1[row[1]] = "success"
 			stus[1] = append(stus[1], &stu{
 				name:          row[1],
 				sex:           row[6],
@@ -242,6 +248,7 @@ func run() [][]*stu {
 			})
 			nums[1]--
 		} else if _, ok = smap2[row[1]]; ok {
+			smap2[row[1]] = "success"
 			stus[2] = append(stus[2], &stu{
 				name:          row[1],
 				sex:           row[6],
@@ -347,9 +354,15 @@ func run() [][]*stu {
 	//ClassNo1 := []int{0, 1, 2, 3, 4, 5}
 	//flag := false
 	start := 0
-	step := 6
+	step := 0
+	count := 0
+	for _, v := range nums {
+		if v > 0 {
+			step++
+			count++
+		}
+	}
 	tail := step
-	count := 6
 	//先处理可以整除的部分
 	for tail <= len(fstu) && count > 0 {
 		ClassNo := make([]int, 0)
